@@ -1,2 +1,2 @@
 # detrudr
-A HTTP traffic-anomaly/DDOS detection and counter engine.
+A [DevSecOps] HTTP traffic-anomaly/DDOS detection and counter engine.
