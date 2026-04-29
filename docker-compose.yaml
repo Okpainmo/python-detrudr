@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  nextcloud:
+    image: kefaslungu/hng-nextcloud
+    container_name: hng-nextcloud
+    restart: unless-stopped
+
+    ports:
+      - "8000:80" # Nextcloud exposed here
+
+    networks:
+      - hng-network
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  detector:
+    build: ./detector
+    container_name: anomaly-detector
+    restart: unless-stopped
+
+    # Required for iptables control
+    cap_add:
+      - NET_ADMIN
+
+    # Required so iptables affects host traffic + dashboard works on host
+    network_mode: "host"
+
+    volumes:
+      # 🔥 Read Nginx logs from host (REQUIRED)
+      - /var/log/nginx/hng-access.log:/var/log/nginx/hng-access.log:ro
+
+      # Optional: persist detector logs
+      - ./detector/logs:/app/logs
+
+      # Config file
+      - ./detector/config.yaml:/app/config.yaml
+
+    environment:
+      - LOG_PATH=/var/log/nginx/hng-access.log
+
+    depends_on:
+      nextcloud:
+        condition: service_healthy
+
+networks:
+  hng-network:
+    driver: bridge
