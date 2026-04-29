@@ -1,8 +1,8 @@
 # Detrudr
 
-`detrudr` is a lightweight HTTP anomaly detection daemon built for as part of my task for stage 4 of the HNG internship 14. It runs beside any containerized server/application that needs to be protected, tails nginx JSON access logs in real time, learns a rolling traffic baseline, detects suspicious spikes, blocks abusive IPs with `iptables`, and exposes a live dashboard.
+`detrudr` is a DevSecOps HTTP traffic-anomaly/DDOS detection and counter engine. It runs beside any containerized server/application that needs to be protected, tails nginx JSON access logs in real time, learns a rolling traffic baseline, detects suspicious spikes, blocks abusive IPs with `iptables`, and exposes a live dashboard.
 
-- Blog post: `https://medium.com/@okpainmo/detrudr-building-a-lightweight-http-anomaly-detection-daemon-with-python-and-nginx-8b1c2d3e4f5g`
+- Blog post: `https://okpainmo.github.io/blog/categories/cloud-and-devops/checking-traffic-anomally-and-ddos-with-detrudr`
 
 ## Language Choice
 
