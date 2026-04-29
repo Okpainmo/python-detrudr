@@ -6,6 +6,7 @@ services:
     container_name: hng-nextcloud
     restart: unless-stopped
 
+    # 👇 Align with Nginx config (IMPORTANT)
     ports:
       - "127.0.0.1:8000:80"
 
@@ -25,8 +26,9 @@ services:
     env_file:
       - ./detector/.env
 
-    # 🔥 Required for iptables
+    # 🔥 required for iptables + host visibility
     network_mode: host
+
     cap_add:
       - NET_ADMIN
 
@@ -35,20 +37,20 @@ services:
         condition: service_healthy
 
     volumes:
-      # Config
+      # config (safe)
       - ./detector/config.yaml:/app/config.yaml:ro
 
-      # Audit logs
-      - detector-audit:/app/logs
+      # audit logs
+      - detector-audit:/tmp
 
-      # ✅ Correct: host nginx logs
+      # 🔥 IMPORTANT: read HOST nginx logs (NOT docker volume)
       - /var/log/nginx/hng-access.log:/var/log/nginx/hng-access.log:ro
 
     environment:
       PYTHONUNBUFFERED: "1"
       LOG_PATH: /var/log/nginx/hng-access.log
 
-    command: ["python", "main.py"]
+    command: ["python3", "main.py"]
 
 volumes:
   detector-audit:
