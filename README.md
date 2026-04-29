@@ -1,6 +1,6 @@
 # Detrudr
 
-`detrudr` is a DevSecOps HTTP traffic-anomaly/DDOS detection and counter engine. It runs beside any containerized server/application that needs to be protected, tails nginx JSON access logs in real time, learns a rolling traffic baseline, detects suspicious spikes, blocks abusive IPs with `iptables`, and exposes a live dashboard.
+`detrudr` is a DevSecOps HTTP traffic-anomaly/DDOS detection and counter engine. That runs beside any containerized server/application that needs to be protected, tails nginx JSON access logs in real time, learns a rolling traffic baseline, detects suspicious spikes, blocks abusive IPs with `iptables`, and exposes a live dashboard.
 
 - Blog post: `https://okpainmo.github.io/blog/categories/cloud-and-devops/checking-traffic-anomally-and-ddos-with-detrudr`
 
