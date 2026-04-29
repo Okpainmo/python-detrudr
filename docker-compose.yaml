@@ -1,52 +1,47 @@
-version: "3.9"
-
 services:
   nextcloud:
     image: kefaslungu/hng-nextcloud
     container_name: hng-nextcloud
     restart: unless-stopped
-
     ports:
-      - "8000:80" # Nextcloud exposed here
-
-    networks:
-      - hng-network
-
+      - "127.0.0.1:8000:80"
+    volumes:
+      - HNG-nginx-logs:/var/log/nginx:ro
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost" ]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 30s
 
   detector:
-    build: ./detector
-    container_name: anomaly-detector
+    build:
+      context: ./detector
+    container_name: detrudr-detector
     restart: unless-stopped
-
-    # Required for iptables control
+    env_file:
+      - ./detector/.env
+    network_mode: host
     cap_add:
       - NET_ADMIN
-
-    # Required so iptables affects host traffic + dashboard works on host
-    network_mode: "host"
-
-    volumes:
-      # 🔥 Read Nginx logs from host (REQUIRED)
-      - /var/log/nginx/hng-access.log:/var/log/nginx/hng-access.log:ro
-
-      # Optional: persist detector logs
-      - ./detector/logs:/app/logs
-
-      # Config file
-      - ./detector/config.yaml:/app/config.yaml
-
-    environment:
-      - LOG_PATH=/var/log/nginx/hng-access.log
-
     depends_on:
       nextcloud:
         condition: service_healthy
+    volumes:
+      - ./detector/config.yaml:/app/config.yaml:ro
+      - HNG-nginx-logs:/var/log/nginx:ro
+      - detector-audit:/tmp
+    environment:
+      PYTHONUNBUFFERED: "1"
+    command: ["python3", "main.py"]
 
-networks:
-  hng-network:
-    driver: bridge
+volumes:
+  HNG-nginx-logs:
+    name: HNG-nginx-logs
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/detrudr/nginx-logs
+  detector-audit:
+    name: detrudr-audit
