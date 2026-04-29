@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 from datetime import datetime, timezone
 from typing import Dict, Generator, Optional
+
+LOGGER = logging.getLogger("detrudr.monitor")
 
 
 def parse_timestamp(raw_timestamp: str) -> datetime:
@@ -40,6 +43,11 @@ def parse_log_line(line: str) -> Optional[Dict[str, object]]:
 def follow_log_file(path: str, sleep_seconds: float = 0.25) -> Generator[Dict[str, object], None, None]:
     while True:
         if not os.path.exists(path):
+            time.sleep(sleep_seconds)
+            continue
+
+        if os.path.isdir(path):
+            LOGGER.error("Configured log path is a directory, not a file: %s", path)
             time.sleep(sleep_seconds)
             continue
 

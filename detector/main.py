@@ -31,6 +31,11 @@ def load_dotenv(path: Path) -> None:
 
 
 def apply_env_overrides(config: dict) -> dict:
+    log_cfg = config.setdefault("log", {})
+    log_path = os.environ.get("LOG_PATH", "").strip()
+    if log_path:
+        log_cfg["path"] = log_path
+
     slack_cfg = config.setdefault("slack", {})
     webhook = os.environ.get("WEB_HOOK_URL", "").strip()
     channel = os.environ.get("CHANNEL", "").strip()
