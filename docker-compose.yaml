@@ -1,12 +1,15 @@
+version: "3.9"
+
 services:
   nextcloud:
     image: kefaslungu/hng-nextcloud
     container_name: hng-nextcloud
     restart: unless-stopped
+
+    # 👇 Align with Nginx config (IMPORTANT)
     ports:
       - "127.0.0.1:8000:80"
-    volumes:
-      - HNG-nginx-logs:/var/log/nginx:ro
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
@@ -19,29 +22,36 @@ services:
       context: ./detector
     container_name: detrudr-detector
     restart: unless-stopped
+
     env_file:
       - ./detector/.env
+
+    # 🔥 required for iptables + host visibility
     network_mode: host
+
     cap_add:
       - NET_ADMIN
+
     depends_on:
       nextcloud:
         condition: service_healthy
+
     volumes:
+      # config (safe)
       - ./detector/config.yaml:/app/config.yaml:ro
-      - HNG-nginx-logs:/var/log/nginx:ro
+
+      # audit logs
       - detector-audit:/tmp
+
+      # 🔥 IMPORTANT: read HOST nginx logs (NOT docker volume)
+      - /var/log/nginx/hng-access.log:/var/log/nginx/hng-access.log:ro
+
     environment:
       PYTHONUNBUFFERED: "1"
+      LOG_PATH: /var/log/nginx/hng-access.log
+
     command: ["python3", "main.py"]
 
 volumes:
-  HNG-nginx-logs:
-    name: HNG-nginx-logs
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /srv/detrudr/nginx-logs
   detector-audit:
     name: detrudr-audit
