@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+
+@layer utilities {
+  .poppins {
+    font-family: var(--font-poppins);
+  }
+
+  .nunito_sans {
+    font-family: var(--font-nunito_sans);
+  }
+}
